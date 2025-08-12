@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Delete {{ object.full_name }} - Student Management{% endblock %}
+{% block content %}
+<h2>Delete Student</h2>
+<p>Are you sure you want to delete <strong>{{ object.full_name }}</strong>?</p>
+<form method="post">
+  {% csrf_token %}
+  <div class="actions">
+    <button type="submit" class="btn btn-danger">Yes, delete</button>
+    <a class="btn btn-secondary" href="{% url 'student_list' %}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Student Management{% endblock %}</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1><a href="{% url 'student_list' %}">Student Management</a></h1>
+      <nav>
+        <a href="{% url 'student_list' %}">Students</a>
+        <a class="btn" href="{% url 'student_create' %}">Add Student</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <small>&copy; {% now 'Y' %} Student Management</small>
+    </div>
+  </footer>
+</body>
+</html>

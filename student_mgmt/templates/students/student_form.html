@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}{% if form.instance.pk %}Edit{% else %}Add{% endif %} Student - Student Management{% endblock %}
+{% block content %}
+<h2>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Student</h2>
+<form method="post" class="form">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <div class="actions">
+    <button type="submit" class="btn">Save</button>
+    <a class="btn btn-secondary" href="{% url 'student_list' %}">Cancel</a>
+  </div>
+</form>
+{% endblock %}
