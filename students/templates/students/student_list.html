@@ -1,0 +1,242 @@
+{% extends 'students/base.html' %}
+
+{% block title %}Students List - Student Management System{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="{% url 'home' %}"><i class="fas fa-home me-1"></i>Home</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            <i class="fas fa-users me-1"></i>Students
+        </li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-users me-2"></i>Students List</h1>
+    <a href="{% url 'student_create' %}" class="btn btn-success">
+        <i class="fas fa-user-plus me-2"></i>Add New Student
+    </a>
+</div>
+
+<!-- Search Bar -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="d-flex">
+            <div class="input-group flex-grow-1">
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" class="form-control" name="search" 
+                       placeholder="Search by name, student ID, email, or course..."
+                       value="{{ search_query }}">
+                <button class="btn btn-primary" type="submit">
+                    <i class="fas fa-search me-1"></i>Search
+                </button>
+            </div>
+            {% if search_query %}
+                <a href="{% url 'student_list' %}" class="btn btn-outline-secondary ms-2">
+                    <i class="fas fa-times me-1"></i>Clear
+                </a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- Students Table -->
+{% if students %}
+<div class="card">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-table me-2"></i>
+            {% if search_query %}
+                Search Results ({{ page_obj.paginator.count }} found)
+            {% else %}
+                All Students ({{ page_obj.paginator.count }} total)
+            {% endif %}
+        </h5>
+        <div class="btn-group btn-group-sm" role="group">
+            <a href="{% url 'student_search' %}" class="btn btn-outline-primary">
+                <i class="fas fa-search-plus me-1"></i>Advanced Search
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Course</th>
+                        <th>Year</th>
+                        <th>GPA</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>
+                            <strong class="text-primary">{{ student.student_id }}</strong>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                    {{ student.first_name.0 }}{{ student.last_name.0 }}
+                                </div>
+                                <div>
+                                    <strong>{{ student.get_full_name }}</strong><br>
+                                    <small class="text-muted">
+                                        <i class="fas fa-birthday-cake me-1"></i>
+                                        Age: {{ student.age }}
+                                    </small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="mailto:{{ student.email }}" class="text-decoration-none">
+                                {{ student.email }}
+                            </a><br>
+                            <small class="text-muted">
+                                <i class="fas fa-phone me-1"></i>{{ student.phone_number }}
+                            </small>
+                        </td>
+                        <td>{{ student.course }}</td>
+                        <td>
+                            <span class="badge bg-info">
+                                {{ student.get_year_of_study_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if student.gpa %}
+                                <span class="badge {% if student.gpa >= 3.5 %}bg-success{% elif student.gpa >= 2.5 %}bg-warning{% else %}bg-danger{% endif %}">
+                                    {{ student.gpa }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if student.is_active %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check me-1"></i>Active
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-times me-1"></i>Inactive
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="{% url 'student_detail' student.pk %}" 
+                                   class="btn btn-outline-primary" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'student_edit' student.pk %}" 
+                                   class="btn btn-outline-warning" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'student_delete' student.pk %}" 
+                                   class="btn btn-outline-danger" title="Delete"
+                                   onclick="return confirm('Are you sure you want to delete {{ student.get_full_name }}?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav aria-label="Students pagination" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+
+<div class="text-center text-muted mt-2">
+    <small>
+        Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} students
+    </small>
+</div>
+{% endif %}
+
+{% else %}
+<!-- Empty State -->
+<div class="card">
+    <div class="card-body text-center py-5">
+        {% if search_query %}
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">No Students Found</h4>
+            <p class="text-muted">
+                No students match your search criteria: "<strong>{{ search_query }}</strong>"
+            </p>
+            <div class="mt-3">
+                <a href="{% url 'student_list' %}" class="btn btn-primary me-2">
+                    <i class="fas fa-list me-2"></i>View All Students
+                </a>
+                <a href="{% url 'student_create' %}" class="btn btn-success">
+                    <i class="fas fa-user-plus me-2"></i>Add New Student
+                </a>
+            </div>
+        {% else %}
+            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">No Students Yet</h4>
+            <p class="text-muted">Get started by adding your first student to the system.</p>
+            <a href="{% url 'student_create' %}" class="btn btn-success btn-lg">
+                <i class="fas fa-user-plus me-2"></i>Add First Student
+            </a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

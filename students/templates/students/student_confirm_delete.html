@@ -1,0 +1,203 @@
+{% extends 'students/base.html' %}
+
+{% block title %}Delete {{ student.get_full_name }} - Student Management System{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="{% url 'home' %}"><i class="fas fa-home me-1"></i>Home</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="{% url 'student_list' %}"><i class="fas fa-users me-1"></i>Students</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="{% url 'student_detail' student.pk %}">
+                <i class="fas fa-user me-1"></i>{{ student.get_full_name }}
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            <i class="fas fa-trash me-1"></i>Delete
+        </li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Deletion
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning border-warning" role="alert">
+                    <div class="d-flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="alert-heading">Warning: This action cannot be undone!</h5>
+                            <p class="mb-0">
+                                You are about to permanently delete the student record for 
+                                <strong>{{ student.get_full_name }}</strong>. 
+                                All associated data will be lost forever.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Summary -->
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title text-danger">
+                            <i class="fas fa-user me-2"></i>Student to be deleted:
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <strong>Student ID:</strong> 
+                                    <span class="text-primary">{{ student.student_id }}</span>
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Full Name:</strong> {{ student.get_full_name }}
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Email:</strong> {{ student.email }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <strong>Course:</strong> {{ student.course }}
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Year:</strong> {{ student.get_year_of_study_display }}
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Status:</strong>
+                                    {% if student.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Consequences -->
+                <div class="mb-4">
+                    <h6 class="text-danger">
+                        <i class="fas fa-list me-2"></i>What will be deleted:
+                    </h6>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex align-items-center">
+                            <i class="fas fa-user text-danger me-3"></i>
+                            <div>
+                                <strong>Personal Information</strong><br>
+                                <small class="text-muted">Name, contact details, date of birth, etc.</small>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex align-items-center">
+                            <i class="fas fa-graduation-cap text-danger me-3"></i>
+                            <div>
+                                <strong>Academic Records</strong><br>
+                                <small class="text-muted">Course information, GPA, year of study</small>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex align-items-center">
+                            <i class="fas fa-map-marker-alt text-danger me-3"></i>
+                            <div>
+                                <strong>Address Information</strong><br>
+                                <small class="text-muted">Complete address details</small>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex align-items-center">
+                            <i class="fas fa-clock text-danger me-3"></i>
+                            <div>
+                                <strong>Timestamps</strong><br>
+                                <small class="text-muted">Creation and modification history</small>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Alternative Actions -->
+                <div class="alert alert-info" role="alert">
+                    <h6 class="alert-heading">
+                        <i class="fas fa-lightbulb me-2"></i>Consider these alternatives:
+                    </h6>
+                    <ul class="mb-0">
+                        <li>
+                            <strong>Deactivate instead:</strong> 
+                            <a href="{% url 'student_edit' student.pk %}" class="alert-link">
+                                Mark the student as inactive
+                            </a> 
+                            to preserve the record while hiding it from active lists.
+                        </li>
+                        <li>
+                            <strong>Update information:</strong> 
+                            <a href="{% url 'student_edit' student.pk %}" class="alert-link">
+                                Edit the student record
+                            </a> 
+                            if the information is incorrect but the student should remain.
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Confirmation Form -->
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <a href="{% url 'student_detail' student.pk %}" class="btn btn-secondary me-2">
+                                        <i class="fas fa-arrow-left me-2"></i>Cancel
+                                    </a>
+                                    <a href="{% url 'student_edit' student.pk %}" class="btn btn-warning">
+                                        <i class="fas fa-edit me-2"></i>Edit Instead
+                                    </a>
+                                </div>
+                                
+                                <div>
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-trash me-2"></i>Yes, Delete Permanently
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add confirmation on form submission
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const confirmed = confirm(
+            'Are you absolutely sure you want to delete {{ student.get_full_name }}?\n\n' +
+            'This action cannot be undone and all data will be permanently lost.'
+        );
+        
+        if (!confirmed) {
+            e.preventDefault();
+        }
+    });
+    
+    // Focus management for accessibility
+    document.addEventListener('DOMContentLoaded', function() {
+        // Focus the first action button for better keyboard navigation
+        document.querySelector('.btn-secondary').focus();
+    });
+</script>
+{% endblock %}

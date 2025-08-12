@@ -1,0 +1,369 @@
+{% extends 'students/base.html' %}
+
+{% block title %}Advanced Search - Student Management System{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="{% url 'home' %}"><i class="fas fa-home me-1"></i>Home</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            <i class="fas fa-search me-1"></i>Advanced Search
+        </li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-search me-2"></i>Advanced Search</h1>
+    <a href="{% url 'student_create' %}" class="btn btn-success">
+        <i class="fas fa-user-plus me-2"></i>Add New Student
+    </a>
+</div>
+
+<!-- Search Form -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-filter me-2"></i>Search Filters
+        </h5>
+    </div>
+    <div class="card-body">
+        <form method="get">
+            <div class="row">
+                <!-- General Search -->
+                <div class="col-md-6 mb-3">
+                    <label for="search" class="form-label">
+                        <i class="fas fa-search me-1"></i>General Search
+                    </label>
+                    <input type="text" class="form-control" id="search" name="search" 
+                           placeholder="Search by name, student ID, or email..."
+                           value="{{ search_query }}">
+                    <div class="form-text">Search across name, student ID, and email fields</div>
+                </div>
+
+                <!-- Course Filter -->
+                <div class="col-md-6 mb-3">
+                    <label for="course" class="form-label">
+                        <i class="fas fa-graduation-cap me-1"></i>Course
+                    </label>
+                    <input type="text" class="form-control" id="course" name="course" 
+                           placeholder="Filter by course name..."
+                           value="{{ course_filter }}">
+                    <div class="form-text">Enter partial or full course name</div>
+                </div>
+
+                <!-- Year Filter -->
+                <div class="col-md-4 mb-3">
+                    <label for="year" class="form-label">
+                        <i class="fas fa-calendar me-1"></i>Year of Study
+                    </label>
+                    <select class="form-control" id="year" name="year">
+                        <option value="">All Years</option>
+                        {% for value, display in year_choices %}
+                            <option value="{{ value }}" {% if year_filter == value %}selected{% endif %}>
+                                {{ display }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Gender Filter -->
+                <div class="col-md-4 mb-3">
+                    <label for="gender" class="form-label">
+                        <i class="fas fa-user me-1"></i>Gender
+                    </label>
+                    <select class="form-control" id="gender" name="gender">
+                        <option value="">All Genders</option>
+                        {% for value, display in gender_choices %}
+                            <option value="{{ value }}" {% if gender_filter == value %}selected{% endif %}>
+                                {{ display }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="col-md-4 mb-3 d-flex align-items-end">
+                    <div class="btn-group w-100" role="group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i>Search
+                        </button>
+                        <a href="{% url 'student_search' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>Clear
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Filters -->
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div class="border-top pt-3">
+                        <h6 class="text-muted mb-2">
+                            <i class="fas fa-bolt me-1"></i>Quick Filters:
+                        </h6>
+                        <div class="btn-group btn-group-sm flex-wrap" role="group">
+                            {% for course in courses %}
+                                <a href="?course={{ course }}" class="btn btn-outline-info">
+                                    {{ course }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Search Results -->
+{% if students %}
+<div class="card">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-table me-2"></i>
+            Search Results ({{ students.paginator.count }} found)
+        </h5>
+        <div class="btn-group btn-group-sm" role="group">
+            <a href="{% url 'student_list' %}" class="btn btn-outline-primary">
+                <i class="fas fa-list me-1"></i>View All
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Course</th>
+                        <th>Year</th>
+                        <th>GPA</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>
+                            <strong class="text-primary">{{ student.student_id }}</strong>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                    {{ student.first_name.0 }}{{ student.last_name.0 }}
+                                </div>
+                                <div>
+                                    <strong>{{ student.get_full_name }}</strong><br>
+                                    <small class="text-muted">
+                                        <i class="fas fa-birthday-cake me-1"></i>
+                                        Age: {{ student.age }}
+                                    </small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="mailto:{{ student.email }}" class="text-decoration-none">
+                                {{ student.email }}
+                            </a><br>
+                            <small class="text-muted">
+                                <i class="fas fa-phone me-1"></i>{{ student.phone_number }}
+                            </small>
+                        </td>
+                        <td>{{ student.course }}</td>
+                        <td>
+                            <span class="badge bg-info">
+                                {{ student.get_year_of_study_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if student.gpa %}
+                                <span class="badge {% if student.gpa >= 3.5 %}bg-success{% elif student.gpa >= 2.5 %}bg-warning{% else %}bg-danger{% endif %}">
+                                    {{ student.gpa }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if student.is_active %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check me-1"></i>Active
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-times me-1"></i>Inactive
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="{% url 'student_detail' student.pk %}" 
+                                   class="btn btn-outline-primary" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'student_edit' student.pk %}" 
+                                   class="btn btn-outline-warning" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'student_delete' student.pk %}" 
+                                   class="btn btn-outline-danger" title="Delete"
+                                   onclick="return confirm('Are you sure you want to delete {{ student.get_full_name }}?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if students.has_other_pages %}
+<nav aria-label="Search results pagination" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if students.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if course_filter %}&course={{ course_filter }}{% endif %}{% if year_filter %}&year={{ year_filter }}{% endif %}{% if gender_filter %}&gender={{ gender_filter }}{% endif %}">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ students.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if course_filter %}&course={{ course_filter }}{% endif %}{% if year_filter %}&year={{ year_filter }}{% endif %}{% if gender_filter %}&gender={{ gender_filter }}{% endif %}">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            </li>
+        {% endif %}
+
+        {% for num in students.paginator.page_range %}
+            {% if students.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+            {% elif num > students.number|add:'-3' and num < students.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if course_filter %}&course={{ course_filter }}{% endif %}{% if year_filter %}&year={{ year_filter }}{% endif %}{% if gender_filter %}&gender={{ gender_filter }}{% endif %}">{{ num }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if students.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ students.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if course_filter %}&course={{ course_filter }}{% endif %}{% if year_filter %}&year={{ year_filter }}{% endif %}{% if gender_filter %}&gender={{ gender_filter }}{% endif %}">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ students.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if course_filter %}&course={{ course_filter }}{% endif %}{% if year_filter %}&year={{ year_filter }}{% endif %}{% if gender_filter %}&gender={{ gender_filter }}{% endif %}">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+
+<div class="text-center text-muted mt-2">
+    <small>
+        Showing {{ students.start_index }} to {{ students.end_index }} of {{ students.paginator.count }} students
+    </small>
+</div>
+{% endif %}
+
+{% else %}
+<!-- Empty State -->
+<div class="card">
+    <div class="card-body text-center py-5">
+        {% if search_query or course_filter or year_filter or gender_filter %}
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">No Students Found</h4>
+            <p class="text-muted">
+                No students match your search criteria. Try adjusting your filters or search terms.
+            </p>
+            <div class="mt-3">
+                <a href="{% url 'student_search' %}" class="btn btn-primary me-2">
+                    <i class="fas fa-times me-2"></i>Clear Filters
+                </a>
+                <a href="{% url 'student_list' %}" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-list me-2"></i>View All Students
+                </a>
+                <a href="{% url 'student_create' %}" class="btn btn-success">
+                    <i class="fas fa-user-plus me-2"></i>Add New Student
+                </a>
+            </div>
+        {% else %}
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">Search Students</h4>
+            <p class="text-muted">
+                Use the search form above to find students by various criteria.
+            </p>
+            <div class="mt-3">
+                <a href="{% url 'student_list' %}" class="btn btn-primary me-2">
+                    <i class="fas fa-list me-2"></i>View All Students
+                </a>
+                <a href="{% url 'student_create' %}" class="btn btn-success">
+                    <i class="fas fa-user-plus me-2"></i>Add New Student
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Search Tips -->
+<div class="card mt-4">
+    <div class="card-header bg-light">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-lightbulb me-2"></i>Search Tips
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6><i class="fas fa-search me-2 text-primary"></i>General Search</h6>
+                <ul class="small text-muted">
+                    <li>Searches across student name, ID, and email</li>
+                    <li>Partial matches are supported</li>
+                    <li>Case-insensitive search</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h6><i class="fas fa-filter me-2 text-success"></i>Advanced Filters</h6>
+                <ul class="small text-muted">
+                    <li>Combine multiple filters for precise results</li>
+                    <li>Use quick filters for popular courses</li>
+                    <li>Leave filters empty to ignore them</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-submit form on filter change (optional enhancement)
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const selects = form.querySelectorAll('select');
+        
+        // Optional: Auto-submit on select change
+        // selects.forEach(select => {
+        //     select.addEventListener('change', function() {
+        //         form.submit();
+        //     });
+        // });
+        
+        // Focus the search input on page load
+        document.getElementById('search').focus();
+    });
+</script>
+{% endblock %}
