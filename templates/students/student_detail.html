@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="mb-3">Student Detail</h2>
+<ul class="list-group mb-3">
+    <li class="list-group-item"><strong>First Name:</strong> {{ student.first_name }}</li>
+    <li class="list-group-item"><strong>Last Name:</strong> {{ student.last_name }}</li>
+    <li class="list-group-item"><strong>Email:</strong> {{ student.email }}</li>
+    <li class="list-group-item"><strong>Age:</strong> {{ student.age }}</li>
+    <li class="list-group-item"><strong>Enrollment Date:</strong> {{ student.enrollment_date }}</li>
+</ul>
+<a href="{% url 'students:student_update' student.pk %}" class="btn btn-warning">Edit</a>
+<a href="{% url 'students:student_delete' student.pk %}" class="btn btn-danger">Delete</a>
+<a href="{% url 'students:student_list' %}" class="btn btn-secondary">Back to List</a>
+{% endblock %}
