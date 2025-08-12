@@ -1,0 +1,8 @@
+body {
+    padding-bottom: 40px;
+}
+
+.table-actions {
+    display: flex;
+    gap: 0.5rem;
+}
