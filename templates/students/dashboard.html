@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Student Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Page Header -->
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-tachometer-alt text-primary me-2"></i>
+                Dashboard
+            </h1>
+            <a href="{% url 'students:student_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Add New Student
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total Students
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_students }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Active Students
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_students }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Departments
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ department_stats|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-building fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Average CGPA
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">3.2</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Department Statistics -->
+    <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Students by Department</h6>
+            </div>
+            <div class="card-body">
+                {% if department_stats %}
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="departmentChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small">
+                        {% for dept, count in department_stats.items %}
+                            <span class="mr-2">
+                                <i class="fas fa-circle text-primary"></i> {{ dept }} ({{ count }})
+                            </span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted">No department data available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Year Statistics -->
+    <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Students by Year</h6>
+            </div>
+            <div class="card-body">
+                {% if year_stats %}
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="yearChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small">
+                        {% for year, count in year_stats.items %}
+                            <span class="mr-2">
+                                <i class="fas fa-circle text-success"></i> {{ year }} ({{ count }})
+                            </span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted">No year data available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Recent Students -->
+    <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Recent Students</h6>
+                <a href="{% url 'students:student_list' %}" class="btn btn-sm btn-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_students %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Department</th>
+                                    <th>Year</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in recent_students %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if student.profile_picture %}
+                                                <img src="{{ student.profile_picture.url }}" class="rounded-circle me-2" width="32" height="32">
+                                            {% else %}
+                                                <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                    <i class="fas fa-user text-white"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                                <div class="fw-bold">{{ student.full_name }}</div>
+                                                <small class="text-muted">{{ student.student_id }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ student.get_department_display_name }}</td>
+                                    <td>{{ student.get_year_display_name }}</td>
+                                    <td>
+                                        <a href="{% url 'students:student_detail' student.pk %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted">No recent students</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Performing Students -->
+    <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Top Performing Students</h6>
+            </div>
+            <div class="card-body">
+                {% if top_students %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Department</th>
+                                    <th>CGPA</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in top_students %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if student.profile_picture %}
+                                                <img src="{{ student.profile_picture.url }}" class="rounded-circle me-2" width="32" height="32">
+                                            {% else %}
+                                                <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                    <i class="fas fa-user text-white"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                                <div class="fw-bold">{{ student.full_name }}</div>
+                                                <small class="text-muted">{{ student.student_id }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ student.get_department_display_name }}</td>
+                                    <td>
+                                        <span class="badge bg-success">{{ student.cgpa }}</span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'students:student_detail' student.pk %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted">No top performing students</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Department Chart
+{% if department_stats %}
+const departmentCtx = document.getElementById('departmentChart').getContext('2d');
+const departmentChart = new Chart(departmentCtx, {
+    type: 'doughnut',
+    data: {
+        labels: [{% for dept, count in department_stats.items %}'{{ dept }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            data: [{% for dept, count in department_stats.items %}{{ count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            backgroundColor: [
+                '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
+                '#858796', '#5a5c69', '#2e59d9', '#17a673', '#2c9faf'
+            ],
+            hoverBackgroundColor: [
+                '#2e59d9', '#17a673', '#2c9faf', '#f6c23e', '#e74a3b',
+                '#858796', '#5a5c69', '#2e59d9', '#17a673', '#2c9faf'
+            ],
+            hoverBorderColor: "rgba(234, 236, 244, 1)",
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10,
+        },
+        legend: {
+            display: false
+        },
+        cutoutPercentage: 80,
+    },
+});
+{% endif %}
+
+// Year Chart
+{% if year_stats %}
+const yearCtx = document.getElementById('yearChart').getContext('2d');
+const yearChart = new Chart(yearCtx, {
+    type: 'doughnut',
+    data: {
+        labels: [{% for year, count in year_stats.items %}'{{ year }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            data: [{% for year, count in year_stats.items %}{{ count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            backgroundColor: [
+                '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'
+            ],
+            hoverBackgroundColor: [
+                '#17a673', '#2c9faf', '#f6c23e', '#e74a3b'
+            ],
+            hoverBorderColor: "rgba(234, 236, 244, 1)",
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10,
+        },
+        legend: {
+            display: false
+        },
+        cutoutPercentage: 80,
+    },
+});
+{% endif %}
+</script>
+{% endblock %}

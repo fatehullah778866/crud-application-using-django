@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ student.full_name }} - Student Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Page Header -->
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-user text-primary me-2"></i>
+                Student Details
+            </h1>
+            <div class="btn-group" role="group">
+                <a href="{% url 'students:student_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Students
+                </a>
+                <a href="{% url 'students:student_update' student.pk %}" class="btn btn-warning">
+                    <i class="fas fa-edit me-1"></i>Edit
+                </a>
+                <a href="{% url 'students:student_delete' student.pk %}" class="btn btn-danger">
+                    <i class="fas fa-trash me-1"></i>Delete
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Student Profile Card -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow">
+            <div class="card-body text-center">
+                {% if student.profile_picture %}
+                    <img src="{{ student.profile_picture.url }}" alt="{{ student.full_name }}" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-secondary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 150px; height: 150px;">
+                        <i class="fas fa-user fa-4x text-white"></i>
+                    </div>
+                {% endif %}
+                
+                <h4 class="card-title">{{ student.full_name }}</h4>
+                <p class="text-muted">{{ student.student_id }}</p>
+                
+                <div class="row text-center mt-3">
+                    <div class="col-6">
+                        <h6 class="text-muted">Age</h6>
+                        <p class="mb-0">{{ student.age }} years</p>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="text-muted">Gender</h6>
+                        <p class="mb-0">{{ student.get_gender_display }}</p>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="d-grid gap-2">
+                    <a href="mailto:{{ student.email }}" class="btn btn-outline-primary">
+                        <i class="fas fa-envelope me-1"></i>Send Email
+                    </a>
+                    <a href="tel:{{ student.phone }}" class="btn btn-outline-success">
+                        <i class="fas fa-phone me-1"></i>Call
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Student Information -->
+    <div class="col-lg-8">
+        <!-- Basic Information -->
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-info-circle me-1"></i>Basic Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Student ID</label>
+                        <p class="mb-0">{{ student.student_id }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Email</label>
+                        <p class="mb-0">
+                            <a href="mailto:{{ student.email }}">{{ student.email }}</a>
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Phone</label>
+                        <p class="mb-0">
+                            <a href="tel:{{ student.phone }}">{{ student.phone }}</a>
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Date of Birth</label>
+                        <p class="mb-0">{{ student.date_of_birth|date:"F d, Y" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Academic Information -->
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-graduation-cap me-1"></i>Academic Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Department</label>
+                        <p class="mb-0">
+                            <span class="badge bg-info">{{ student.get_department_display_name }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Year</label>
+                        <p class="mb-0">
+                            <span class="badge bg-secondary">{{ student.get_year_display_name }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Semester</label>
+                        <p class="mb-0">{{ student.semester }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">CGPA</label>
+                        <p class="mb-0">
+                            {% if student.cgpa > 0 %}
+                                <span class="badge {% if student.cgpa >= 3.5 %}bg-success{% elif student.cgpa >= 3.0 %}bg-warning{% else %}bg-danger{% endif %}">
+                                    {{ student.cgpa }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">Not available</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Address Information -->
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-map-marker-alt me-1"></i>Address Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label class="form-label fw-bold">Address</label>
+                        <p class="mb-0">{{ student.address }}</p>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">City</label>
+                        <p class="mb-0">{{ student.city }}</p>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">State</label>
+                        <p class="mb-0">{{ student.state }}</p>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Postal Code</label>
+                        <p class="mb-0">{{ student.postal_code }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Country</label>
+                        <p class="mb-0">{{ student.country }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Emergency Contact -->
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-phone-alt me-1"></i>Emergency Contact
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Contact Name</label>
+                        <p class="mb-0">{{ student.emergency_contact_name }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Contact Number</label>
+                        <p class="mb-0">
+                            <a href="tel:{{ student.emergency_contact }}">{{ student.emergency_contact }}</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Information -->
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-cog me-1"></i>System Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Status</label>
+                        <p class="mb-0">
+                            {% if student.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Created</label>
+                        <p class="mb-0">{{ student.created_at|date:"F d, Y H:i" }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Last Updated</label>
+                        <p class="mb-0">{{ student.updated_at|date:"F d, Y H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-tools me-1"></i>Quick Actions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'students:student_update' student.pk %}" class="btn btn-warning w-100">
+                            <i class="fas fa-edit me-1"></i>Edit Student
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="mailto:{{ student.email }}" class="btn btn-primary w-100">
+                            <i class="fas fa-envelope me-1"></i>Send Email
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="tel:{{ student.phone }}" class="btn btn-success w-100">
+                            <i class="fas fa-phone me-1"></i>Call Student
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'students:student_delete' student.pk %}" class="btn btn-danger w-100">
+                            <i class="fas fa-trash me-1"></i>Delete Student
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

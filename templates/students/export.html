@@ -1,0 +1,338 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Export Students - Student Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Page Header -->
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-download text-primary me-2"></i>
+                Export Students
+            </h1>
+            <a href="{% url 'students:student_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Students
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-cog me-1"></i>Export Options
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="post" id="exportForm">
+                    {% csrf_token %}
+                    
+                    <!-- Export Format -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-file-alt me-1"></i>Export Format
+                            </h5>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="format" id="formatCSV" value="csv" checked>
+                                <label class="form-check-label" for="formatCSV">
+                                    <i class="fas fa-file-csv text-success me-1"></i>CSV Format
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="format" id="formatExcel" value="excel">
+                                <label class="form-check-label" for="formatExcel">
+                                    <i class="fas fa-file-excel text-success me-1"></i>Excel Format
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fields to Export -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-list me-1"></i>Fields to Export
+                            </h5>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="fields" id="fieldBasic" value="basic" checked>
+                                <label class="form-check-label" for="fieldBasic">
+                                    <strong>Basic Information</strong>
+                                </label>
+                                <small class="form-text text-muted d-block">Student ID, Name, Email, Phone, DOB, Gender</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="fields" id="fieldAcademic" value="academic" checked>
+                                <label class="form-check-label" for="fieldAcademic">
+                                    <strong>Academic Information</strong>
+                                </label>
+                                <small class="form-text text-muted d-block">Department, Year, Semester, CGPA</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="fields" id="fieldAddress" value="address">
+                                <label class="form-check-label" for="fieldAddress">
+                                    <strong>Address Information</strong>
+                                </label>
+                                <small class="form-text text-muted d-block">Address, City, State, Postal Code, Country</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="fields" id="fieldEmergency" value="emergency">
+                                <label class="form-check-label" for="fieldEmergency">
+                                    <strong>Emergency Contact</strong>
+                                </label>
+                                <small class="form-text text-muted d-block">Emergency Contact Name and Number</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="fields" id="fieldSystem" value="system">
+                                <label class="form-check-label" for="fieldSystem">
+                                    <strong>System Information</strong>
+                                </label>
+                                <small class="form-text text-muted d-block">Created Date, Updated Date, Status</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Filter Options -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-filter me-1"></i>Filter Options
+                            </h5>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="filterDepartment" class="form-label">Department</label>
+                            <select class="form-select" id="filterDepartment" name="department">
+                                <option value="">All Departments</option>
+                                <option value="CS">Computer Science</option>
+                                <option value="IT">Information Technology</option>
+                                <option value="EE">Electrical Engineering</option>
+                                <option value="ME">Mechanical Engineering</option>
+                                <option value="CE">Civil Engineering</option>
+                                <option value="BT">Biotechnology</option>
+                                <option value="CH">Chemical Engineering</option>
+                                <option value="PH">Physics</option>
+                                <option value="MA">Mathematics</option>
+                                <option value="EN">English</option>
+                                <option value="HI">History</option>
+                                <option value="EC">Economics</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="filterYear" class="form-label">Year</label>
+                            <select class="form-select" id="filterYear" name="year">
+                                <option value="">All Years</option>
+                                <option value="1">First Year</option>
+                                <option value="2">Second Year</option>
+                                <option value="3">Third Year</option>
+                                <option value="4">Fourth Year</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="filterStatus" class="form-label">Status</label>
+                            <select class="form-select" id="filterStatus" name="status">
+                                <option value="active">Active Only</option>
+                                <option value="all">All Students</option>
+                                <option value="inactive">Inactive Only</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Export Actions -->
+                    <div class="row">
+                        <div class="col-12">
+                            <hr class="my-4">
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                    <i class="fas fa-undo me-1"></i>Reset
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="exportBtn">
+                                    <i class="fas fa-download me-1"></i>Export Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Export Preview -->
+    <div class="col-lg-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-eye me-1"></i>Export Preview
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted">Total Students to Export</h6>
+                    <h3 class="text-primary">{{ students.count }}</h3>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted">Selected Fields</h6>
+                    <div id="selectedFields">
+                        <span class="badge bg-primary me-1 mb-1">Basic Info</span>
+                        <span class="badge bg-primary me-1 mb-1">Academic Info</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted">Export Format</h6>
+                    <p class="mb-0" id="exportFormat">CSV</p>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-1"></i>
+                    <small>
+                        The export will include all students matching your filter criteria. 
+                        Large exports may take a few moments to process.
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Exports -->
+        <div class="card shadow mt-4">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-history me-1"></i>Recent Exports
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted text-center">
+                    <i class="fas fa-clock fa-2x mb-2"></i><br>
+                    No recent exports
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Update preview when form changes
+    const form = document.getElementById('exportForm');
+    const inputs = form.querySelectorAll('input, select');
+    
+    inputs.forEach(input => {
+        input.addEventListener('change', updatePreview);
+    });
+    
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        exportData();
+    });
+    
+    // Initial preview update
+    updatePreview();
+});
+
+function updatePreview() {
+    // Update selected fields
+    const selectedFields = [];
+    const fieldCheckboxes = document.querySelectorAll('input[name="fields"]:checked');
+    
+    fieldCheckboxes.forEach(checkbox => {
+        switch(checkbox.value) {
+            case 'basic':
+                selectedFields.push('Basic Info');
+                break;
+            case 'academic':
+                selectedFields.push('Academic Info');
+                break;
+            case 'address':
+                selectedFields.push('Address Info');
+                break;
+            case 'emergency':
+                selectedFields.push('Emergency Contact');
+                break;
+            case 'system':
+                selectedFields.push('System Info');
+                break;
+        }
+    });
+    
+    const fieldsContainer = document.getElementById('selectedFields');
+    fieldsContainer.innerHTML = selectedFields.map(field => 
+        `<span class="badge bg-primary me-1 mb-1">${field}</span>`
+    ).join('');
+    
+    // Update export format
+    const format = document.querySelector('input[name="format"]:checked').value.toUpperCase();
+    document.getElementById('exportFormat').textContent = format;
+}
+
+function exportData() {
+    const btn = document.getElementById('exportBtn');
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<span class="loading"></span> Exporting...';
+    btn.disabled = true;
+    
+    // Simulate export process
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        
+        // Show success message
+        showAlert('Export completed successfully!', 'success');
+    }, 2000);
+}
+
+function resetForm() {
+    document.getElementById('exportForm').reset();
+    updatePreview();
+}
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('.container');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        const bsAlert = new bootstrap.Alert(alertDiv);
+        bsAlert.close();
+    }, 5000);
+}
+</script>
+{% endblock %}
